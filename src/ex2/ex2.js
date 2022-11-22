@@ -18,35 +18,24 @@ Con su método ha conseguido descifrar estos mensajes:
 "11210897121 116101116114105115" -> play tetris
 */
 
-const reference = {
-  "109105100117": "midu",
-  "9911110010110998101114": "codember",
-  "11210897121": "play",
-  "116101116114105115": "tetris"
+function fromAsciiCode(str){
+  if(str.length <= 2) return String.fromCharCode(parseInt(str))
+  const triplet = parseInt(str.slice(0, 3))
+  if(triplet > 255){
+    return String.fromCharCode(str.slice(0,2)) + fromAsciiCode(str.slice(2))
+  } else {
+    return String.fromCharCode(triplet) + fromAsciiCode(str.slice(3))
+  }
 }
-
-const referenceKeys = Object.keys(reference);
-const map = Object.fromEntries(Array.from(Array(26), (_, i) => [i + 97, String.fromCharCode(i + 97)]))
 
 fs.readFile(filePath, 'ascii', function(err, data) {
   if (err) throw new Error('Could not read file')
-  const lines = data
+  const codes = data
     .split('\n')
     .filter(Boolean)[0]
     .split(' ')
-    .map(code => {
-      if(referenceKeys.includes(code)){
-        return reference[code];
-      }
-      return code.match(/.{1,3}/g).map(l => {
-        const char = String.fromCharCode(parseInt(l))
-        if(map[l]){
-        return map[l] 
-        } else {
-        return l
-        }
-      }).join('')
-    })
-  console.log(lines)
+    .map(c => fromAsciiCode(c))
+    .join(' ')
 
+  console.log(codes)
 })
